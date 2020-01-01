@@ -12,9 +12,10 @@ NOTE: Works on Windows only!
 If you did everything correctly, you should now have enetrepeater.exe somewhere in your project folders.
 ## Usage
 
-1. Open enetrepeater.exe
-2. Open Growtopia and login.
-3. Once you have sent/received the packets you need, just log out of Growtopia.
-4. Close the application by pressing Ctrl+C
+1. Replace your hosts file with the one included in the repository. The file is located at: ```C:\Windows\System32\drivers\etc```
+2. Open enetrepeater.exe
+3. Open Growtopia and login.
+4. Once you have sent/received the packets you need, just log out of Growtopia.
+5. Close the application by pressing Ctrl+C
 
 To inspect the packets you may need some external program such as a hex editor.
