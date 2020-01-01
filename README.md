@@ -13,9 +13,10 @@ If you did everything correctly, you should now have enetrepeater.exe somewhere 
 ## Usage
 
 1. Replace your hosts file with the one included in the repository. The file is located at: ```C:\Windows\System32\drivers\etc```
-2. Open enetrepeater.exe
-3. Open Growtopia and login.
-4. Once you have sent/received the packets you need, just log out of Growtopia.
-5. Close the application by pressing Ctrl+C
+2. Open run.py (make sure you have Python 3 installed!)
+3. Open enetrepeater.exe
+4. Open Growtopia and login.
+5. Once you have sent/received the packets you need, just log out of Growtopia.
+6. Close the application by pressing Ctrl+C
 
 To inspect the packets you may need some external program such as a hex editor.
