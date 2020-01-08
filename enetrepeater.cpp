@@ -14,6 +14,8 @@ ENetPeer * client_peer;
 
 int login_user = 0;
 int login_token = 0;
+string login_doorid;
+int login_lmode = 0;
 string login_packet_str;
 unsigned char login_packet[1024];
 unsigned int login_packet_length = 0;
@@ -58,12 +60,16 @@ void connectClient(string address, int port) {
 	enet_host_flush(client);
 }
 
-void OnSendToServer(string address, int port, int userId, int token)
+void OnSendToServer(string address, int port, int userId, int token, int lmode, string doorid)
 {
 	cout << "Redirecting to " << address << ":" << to_string(port) << " with user id " << to_string(userId) << " and login token " << to_string(token) << endl;
 
 	login_user = userId;
-	login_token = token;
+	login_lmode = lmode;
+	login_doorid = doorid;
+	if (token != -1) {
+		login_token = token;
+	}
 	connectClient(address, port);
 	doesPacketRedirect = true;
 	isRedirectInProcess = true;
@@ -74,6 +80,8 @@ struct OnSendToServerStruct
 	int port;
 	int userId;
 	int token;
+	string doorid;
+	int lmode;
 };
 
 BYTE* GetExtendedDataPointerFromTankPacket(BYTE* a1)
@@ -152,8 +160,8 @@ void SerializeFromMem(byte *pSrc, int bufferSize, int *pBytesReadOut, int netId)
 			}
 			if (action == "OnSendToServer" && index == 4)
 			{
-				v.resize(v.length() - 1);
-				((OnSendToServerStruct*)dataStruct)->address = v;
+				((OnSendToServerStruct*)dataStruct)->address = v.substr(0,v.find("|"));
+				((OnSendToServerStruct*)dataStruct)->doorid = v.substr(v.find("|") + 1);
 			}
 			break;
 		}
@@ -179,6 +187,10 @@ void SerializeFromMem(byte *pSrc, int bufferSize, int *pBytesReadOut, int netId)
 			else if (action == "OnSendToServer" && index == 3)
 			{
 				((OnSendToServerStruct*)dataStruct)->userId = v;
+			}
+			else if (action == "OnSendToServer" && index == 5)
+			{
+				((OnSendToServerStruct*)dataStruct)->lmode = v;
 			}
 			break;
 		}
@@ -215,7 +227,7 @@ void SerializeFromMem(byte *pSrc, int bufferSize, int *pBytesReadOut, int netId)
 	}
 	if (action == "OnSendToServer")
 	{
-		OnSendToServer(((OnSendToServerStruct*)dataStruct)->address, ((OnSendToServerStruct*)dataStruct)->port, ((OnSendToServerStruct*)dataStruct)->userId, ((OnSendToServerStruct*)dataStruct)->token);
+		OnSendToServer(((OnSendToServerStruct*)dataStruct)->address, ((OnSendToServerStruct*)dataStruct)->port, ((OnSendToServerStruct*)dataStruct)->userId, ((OnSendToServerStruct*)dataStruct)->token, ((OnSendToServerStruct*)dataStruct)->lmode, ((OnSendToServerStruct*)dataStruct)->doorid);
 		cout << "Redirecting to " << ((OnSendToServerStruct*)dataStruct)->address << ":" << to_string(((OnSendToServerStruct*)dataStruct)->port) << " with user id " << to_string(((OnSendToServerStruct*)dataStruct)->userId) << " and login token " << to_string(((OnSendToServerStruct*)dataStruct)->token) << endl;
 	}
 	if (dataStruct != NULL)
@@ -253,9 +265,16 @@ void onLoginRequested() {
 	string token;
 	if (!login_user && !login_token) {
 		token = "";
-	} else {
-		token = "\nuser|" + std::to_string(login_user) + "\ntoken|" + std::to_string(login_token);
 	}
+        else if (login_doorid != "") {
+		token = "\nuser|" + std::to_string(login_user) + "\ntoken|" + std::to_string(login_token) + "\ndoorID|" + login_doorid + '\n';
+	}
+	else {
+		token = "\nuser|" + std::to_string(login_user) + "\ntoken|" + std::to_string(login_token) + '\n';
+	}
+	int lmodefix = login_packet_str.find("lmode|");
+	string stringlmode = to_string(login_lmode);
+	login_packet_str[lmodefix + 6] = stringlmode[0]; // Change lmode|0 in login packet to our lmode from server.
 	string packStr = login_packet_str + token;
 	int packetLen = login_packet_length + token.length();
 	SendPacket(2, packStr, client_peer);
