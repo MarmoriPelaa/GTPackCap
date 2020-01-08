@@ -377,7 +377,7 @@ int main(int argc, char ** argv)
 
 	//client set host
 	ENetAddress client_address;
-	enet_address_set_host(&client_address, "209.59.191.86");
+	enet_address_set_host(&client_address, "209.59.191.76");
 	client_address.port = 17093;
 	
 	/* Wait up to 1000 milliseconds for an event. */
