@@ -20,3 +20,5 @@ If you did everything correctly, you should now have enetrepeater.exe somewhere 
 6. Close the application by pressing Ctrl+C
 
 To inspect the packets you may need some external program such as a hex editor.
+
+Information and code obtained from the Growtopia Private Server community!
